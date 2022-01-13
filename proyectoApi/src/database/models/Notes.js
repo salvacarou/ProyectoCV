@@ -1,0 +1,33 @@
+const { DataTypes } = require("Sequelize");
+
+module.exports = (sequelize) => {
+
+    const cols = {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        name: DataTypes.STRING,
+        image: DataTypes.STRING,
+        text: DataTypes.STRING,
+        deleted: DataTypes.TINYINT,
+    }
+
+    const Notes = sequelize.define("Notes", cols,
+        {
+        tableName: "notes",
+        timestamps: false,
+        }
+    );
+
+    Notes.associate = function (models) {
+
+        Notes.belongsTo(models.Categories, {
+          as: "category",
+          foreignKey: "categoryId",
+        });
+    }
+
+    return Notes;
+};

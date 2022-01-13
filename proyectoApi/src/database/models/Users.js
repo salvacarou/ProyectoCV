@@ -1,8 +1,5 @@
 const { DataTypes } = require("Sequelize");
 
-// Si agregamos o borramos columnas de la base de datos, recien
-// ahí es cuando tenemos que venir aca a modificar algo.
-
 module.exports = (sequelize) => {
 
     const cols = {
@@ -27,32 +24,6 @@ module.exports = (sequelize) => {
         timestamps: false,
         }
     );
-
-    // User.associate = function (models){
-    //     User.belongsToMany(models.N, {
-    //         as: "notes", 
-    //         through: "product_user_fav",
-    //         foreignKey: "userId",
-    //         otherKey: "productId",
-    //         timestamps: false
-    //     })
-    //     User.associate = function (models) {
-    //         User.hasMany(models.Carts, {
-    //           as: "cart",
-    //           foreignKey: "userId",
-    //         });
-    //     }; 
-    //     // EN EL CONTROLADOR ESCRIBIR ESTO PARA LLAMAR ^^
-    //     // db.Usurs.findAll({
-    //     //     include: [{association:"cart"}]
-    //     // })
-
-    //     User.hasOne(models.Roles, {
-    //         as: "role",
-    //         foreignKey: "rolesId",
-    //     });
-
-    // }
 
     return User;
 };
