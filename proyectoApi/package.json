@@ -1,0 +1,19 @@
+{
+  "name": "proyectoApi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "nodemon src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express-session": "^1.17.2",
+    "mysql2": "^2.3.3",
+    "nodemon": "^2.0.15",
+    "sequelize": "^6.13.0",
+    "sequelize-cli": "^6.3.0"
+  }
+}
