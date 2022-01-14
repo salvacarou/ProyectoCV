@@ -19,11 +19,39 @@ const controller = {
                 status: 200,
                 count: users.length,
                 url: "http://localhost:3001/api/users/",
+                usuariosEliminados: "http://localhost:3001/api/deletedUsers/"
             },
             data:{
                 users
             }
         })
+    },
+    deletedUsers: async (req, res) => {
+        const usersList = await Users.findAll({where: {deleted : true}});
+        
+        const users = usersList.map((userr) => { 
+            return { 
+                id: userr.id,
+                fullName: userr.fullName,
+                email: userr.email,
+                url: "http://localhost:3001/api/users/" + userr.id
+                
+             }
+         })
+
+        res.json({
+            meta:{
+                status: 200,
+                count: users.length,
+                url: "http://localhost:3001/api/deletedUsers/",
+                usuarios: "Eliminados",
+                usuariosVigentes: "http://localhost:3001/api/users/"
+            },
+            data:{
+                users
+            }
+        })
+
     },
     detail: async (req, res) => {
         const user = await Users.findByPk(req.params.id)
@@ -58,7 +86,6 @@ const controller = {
          }
     },
     create: async (req, res) => {
-        console.log(req.body)
 
         const biggestId = await Users.max("id")
         const newUser = await Users.create({
@@ -74,6 +101,7 @@ const controller = {
         res.redirect("/api/users")
     },
     delete: async (req, res) => {
+
         const userSearch = await Users.findOne({ where: { id : req.params.id }})
         if (userSearch) {
             await Users.update({
