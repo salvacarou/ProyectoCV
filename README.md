@@ -1,7 +1,9 @@
+*Salvador Carou*
+
 ***Proyecto para CV***
+
 **DB y Api**
 
-*Salvador Carou*
 -----------------------------------
 
 *En proceso:*
