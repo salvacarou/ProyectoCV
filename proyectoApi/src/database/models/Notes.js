@@ -27,6 +27,11 @@ module.exports = (sequelize) => {
           as: "category",
           foreignKey: "categoryId",
         });
+
+        Notes.belongsTo(models.Users, {
+            as: "users",
+            foreignKey: "userId",
+          });
     }
 
     return Notes;

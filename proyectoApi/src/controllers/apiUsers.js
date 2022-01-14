@@ -54,7 +54,25 @@ const controller = {
 
     },
     detail: async (req, res) => {
-        const user = await Users.findByPk(req.params.id)
+        const user = await Users.findByPk(req.params.id, {include: ["notes"]})
+        // console.log(user)
+
+        const userNotes = user.notes.map((notes) => { 
+            return { 
+                id: notes.id,
+                name: notes.name,
+                deleted: notes.deleted[0],
+                url: "http://localhost:3001/api/notes/" + notes.id
+                
+             }
+         })
+
+         const currentNotes = userNotes.filter((dele) => {
+             return dele.deleted == 0
+         })
+         const deletedNotes = userNotes.filter((dele) => {
+            return dele.deleted == 1
+        })
          
         if (user) {
             res.json({
@@ -65,7 +83,15 @@ const controller = {
                  email: user.email,
                  birthdate: user.birthdate,
                  image: "http://localhost:3001/public/images/users/" + user.image,
-                 delted: user.deleted
+                 deleted: user.deleted.data,
+             },
+                UserNotes: {
+                    totalNotescount: userNotes.length,
+                    currentNotesCount: currentNotes.length,
+                    currentNotesList: currentNotes,
+                    deletedNotesCount: deletedNotes.length,
+                    deletedNotesList: deletedNotes
+                    // allNotes: userNotes
              },
              meta: {
                  status: 200,

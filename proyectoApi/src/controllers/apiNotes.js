@@ -4,14 +4,13 @@ const { Notes } = require("../database/models");
 
 const controller = {
     list: async (req, res) => {
-        const notesList = await Notes.findAll({where : {deleted : false}})
-        console.log(notesList)
-        const allNotes = notesList.map((notes) => {
-            return {
+        const notesList = await Notes.findAll({where : {deleted : false}}, {include:["users"]})
+        const allNotes = notesList.map((notes) => {     
+                return {
                 id: notes.id,
                 name: notes.name,
-                url: "http://localhost:3001/api/notes/" + notes.id
-            }
+                url: "http://localhost:3001/api/notes/" + notes.id,
+            }    
         })
 
         res.json({
@@ -47,7 +46,7 @@ const controller = {
         })
     },
     detail: async (req, res) => {
-        const note = await Notes.findByPk(req.params.id, {include: ["category"]}) 
+        const note = await Notes.findByPk(req.params.id, {include: ["category", "users"]}) 
 
         if (note) {
             res.json({
@@ -56,7 +55,11 @@ const controller = {
                     name : note.name,
                     category: note.category.name,
                     text: note.text,
-                    image: note.image
+                    image: note.image,
+                    deleted: note.deleted[0] == 0 ? false : true,
+                    userName: note.users.fullName,
+                    userId: note.userId,
+                    userUrl: "http://localhost:3001/api/users/" + note.users.id
                 },
                 meta: {
                     status: 200,
@@ -86,6 +89,7 @@ const controller = {
             image: req.body.image ? req.body.image : "incompleto",
             text : req.body.text ? req.body.text : "incompleto",
             categoryId : Number(req.body.category ? req.body.category : 11),
+            userId : Number(req.body.userId ? req.body.userId : 1),
             deleted : 0
         })
 
