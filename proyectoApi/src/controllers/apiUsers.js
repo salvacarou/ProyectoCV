@@ -55,13 +55,12 @@ const controller = {
     },
     detail: async (req, res) => {
         const user = await Users.findByPk(req.params.id, {include: ["notes"]})
-        // console.log(user)
 
         const userNotes = user.notes.map((notes) => { 
             return { 
                 id: notes.id,
                 name: notes.name,
-                deleted: notes.deleted[0],
+                deleted: (notes.deleted[0] == false) ? false : true ,
                 url: "http://localhost:3001/api/notes/" + notes.id
                 
              }
@@ -91,7 +90,6 @@ const controller = {
                     currentNotesList: currentNotes,
                     deletedNotesCount: deletedNotes.length,
                     deletedNotesList: deletedNotes
-                    // allNotes: userNotes
              },
              meta: {
                  status: 200,
