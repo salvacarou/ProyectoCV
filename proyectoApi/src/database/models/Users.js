@@ -30,6 +30,14 @@ module.exports = (sequelize) => {
           as: "notes",
           foreignKey: "userId",
         });
+
+    User.belongsToMany(models.Notes, {
+            as: "favnote", 
+            through: "note_user_fav",
+            foreignKey: "userId",
+            otherKey: "notesId",
+            timestamps: false
+        })
     }
 
     return User;

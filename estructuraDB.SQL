@@ -82,7 +82,8 @@ VALUES
 
 INSERT INTO note_user_fav(id, notesId, userId)
 VALUES
-(default, 1, 1);
+(default, 8, 2);
+-- (default, 9, 1);
 
 ALTER Table notes add userId INT NOT NULL
 

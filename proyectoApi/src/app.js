@@ -23,6 +23,10 @@ app.use(bodyParser.json())
 const rutaApi = require("./routes/apiRoutes")
 app.use("/api", rutaApi)
 
+app.use("/", (req, res) => {
+    res.send("<br> <a href = http://localhost:3001/api> Api <a>") 
+ } )
+
 app.listen(3001, () => console.log("Servidor esta corriendo en el puerto 3001"));
 
 module.export = app; 

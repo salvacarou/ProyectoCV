@@ -4,21 +4,51 @@ const { Notes } = require("../database/models");
 
 const controller = {
     list: async (req, res) => {
-        const notesList = await Notes.findAll({where : {deleted : false}}, {include:["users"]})
+        const notesList = await Notes.findAll({where : {deleted : false}, include:["users", "userfaved"]})
         const allNotes = notesList.map((notes) => {     
                 return {
                 id: notes.id,
                 name: notes.name,
+                favCount: notes.userfaved.length,
                 url: "http://localhost:3001/api/notes/" + notes.id,
             }    
         })
 
+        // const mostFavs = allNotes.sort(function (a, b) {
+        //     if (a.favCount > b.favCount) {
+        //         return -1;
+        //     }
+        //     if (a.favCount < b.favCount) {
+        //         return 1
+        //     }
+        //     return 0
+        // })
+
+        const mostFavs = notesList.sort(function (a, b) {
+            if (a.userfaved.length > b.userfaved.length) {
+                return -1;
+            }
+            if (a.userfaved.length < b.userfaved.length) {
+                return 1
+            }
+            return 0
+        })
+        console.log(mostFavs[0].name)
+
         res.json({
             meta: {
                 status: 200,
+                menu: "http://localhost:3001/api",
+                users: "http://localhost:3001/api/users",
                 count: allNotes.length,
                 url: "http://localhost:3001/api/notes",
-                notasEliminadas: "http://localhost:3001/api/deletedNotes"
+                notasEliminadas: "http://localhost:3001/api/deletedNotes",
+                mostFavs: {
+                    id: mostFavs[0].id,
+                    name: mostFavs[0].name,
+                    favCount: mostFavs[0].userfaved.length,
+                    url: "http://localhost:3001/api/notes/" + mostFavs[0].id,
+                }
             },
             data: allNotes
         })
@@ -46,7 +76,7 @@ const controller = {
         })
     },
     detail: async (req, res) => {
-        const note = await Notes.findByPk(req.params.id, {include: ["category", "users"]}) 
+        const note = await Notes.findByPk(req.params.id, {include: ["category", "users", "userfaved"]}) 
 
         if (note) {
             res.json({
@@ -55,9 +85,10 @@ const controller = {
                     name : note.name,
                     category: note.category.name,
                     text: note.text,
+                    favCount : note.userfaved.length,
                     image: note.image,
                     deleted: note.deleted[0] == 0 ? false : true,
-                    userName: note.users.fullName,
+                    creator: note.users.fullName,
                     userId: note.userId,
                     userUrl: "http://localhost:3001/api/users/" + note.users.id
                 },

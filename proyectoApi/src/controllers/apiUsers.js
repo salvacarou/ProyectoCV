@@ -1,4 +1,6 @@
 const { Users } = require("../database/models");
+const { Note_user_fav } = require("../database/models");
+
 
 
 const controller = {
@@ -17,6 +19,8 @@ const controller = {
         res.json({
             meta:{
                 status: 200,
+                menu: "http://localhost:3001/api",
+                notes: "http://localhost:3001/api/notes",
                 count: users.length,
                 url: "http://localhost:3001/api/users/",
                 usuariosEliminados: "http://localhost:3001/api/deletedUsers/"
@@ -54,9 +58,9 @@ const controller = {
 
     },
     detail: async (req, res) => {
-        const user = await Users.findByPk(req.params.id, {include: ["notes"]})
+        const user = await Users.findByPk(req.params.id, {include: ["notes", "favnote"]})
 
-        const userNotes = user.notes.map((notes) => { 
+        const userNotes = user.notes.map((notes) => { // Notas creadas por este usuario (asociacion de una a muchos)
             return { 
                 id: notes.id,
                 name: notes.name,
@@ -65,6 +69,19 @@ const controller = {
                 
              }
          })
+
+         const userFavs = user.favnote.map((notes) => { // favoritos (asociacion de muchos a muchos)
+            return { 
+                id: notes.id,
+                name: notes.name,
+                deleted: (notes.deleted[0] == false) ? false : true ,
+                url: "http://localhost:3001/api/notes/" + notes.id
+                
+             }
+         })
+         const currentFavNotes = userFavs.filter((dele) => {
+            return dele.deleted == 0
+        })
 
          const currentNotes = userNotes.filter((dele) => {
              return dele.deleted == 0
@@ -91,9 +108,13 @@ const controller = {
                     deletedNotesCount: deletedNotes.length,
                     deletedNotesList: deletedNotes
              },
+                FavNotes: {
+                    favoriteNotes: currentFavNotes
+                },
              meta: {
                  status: 200,
-                 url: "http://localhost:3001/api/users/" + user.id
+                 url: "http://localhost:3001/api/users/" + user.id,
+                 fullList: "http://localhost:3001/api/users/"
              }
          }) 
 
@@ -159,9 +180,6 @@ const controller = {
             Problema: "No se encontro el usuario"
         })
     }
-        
-
-
         res.redirect("/api/users/" + req.params.id )
     }
 }

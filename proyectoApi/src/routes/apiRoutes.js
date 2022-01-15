@@ -18,5 +18,9 @@ router.post("/users", apiUsers.create);
 router.put("/users/:id", apiUsers.edit);
 router.delete("/users/:id", apiUsers.delete);
 
+router.get("/", (req, res) => {
+   res.send("<br> <a href = http://localhost:3001/api/notes> Notas <a> <br><br> <a href = http://localhost:3001/api/users> Users <a>") 
+} )
+
 
 module.exports = router;
