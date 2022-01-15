@@ -8,8 +8,8 @@
 
 Db y api con usuarios y notas (y otras tablas secundarias). Cada nota tiene asociada un usuario como su creador y cada usuario tiene varias notas en sus "favoritos". Se puede crear, editar y borrar notas y usuarios desde postman.
 
-*En proceso:*
-- 
+
+
 
 *terminado:*
 - DB
