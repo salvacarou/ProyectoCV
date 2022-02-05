@@ -1,5 +1,7 @@
 const { Users } = require("../database/models");
 const { Note_user_fav } = require("../database/models");
+const bcryptjs = require('bcryptjs');
+const { validationResult } = require("express-validator");
 
 
 
@@ -131,19 +133,30 @@ const controller = {
          }
     },
     create: async (req, res) => {
+        const resultValidation = validationResult(req)
 
-        const biggestId = await Users.max("id")
-        const newUser = await Users.create({
+        if (resultValidation.errors.length == 0) {
+            const biggestId = await Users.max("id")
+            const newUser = await Users.create({
             id : biggestId + 1,
-            fullName : req.body.fullName ? req.body.fullName : "incompleto",
-            username : req.body.username ? req.body.username : "incompleto",
-            email : req.body.email ? req.body.email : "incompleto",
-            birthdate: req.body.birthdate ? req.body.birthdate : "incompleto",
-            image: req.body.image ? req.body.image : "incompleto",
-            password: req.body.password ? req.body.password : "incompleto",
+            fullName : req.body.fullName,
+            username : req.body.username,
+            email : req.body.email,
+            birthdate: req.body.birthdate,
+            image: req.body.image,
+            password: bcryptjs.hashSync(req.body.password, 10),
             deleted : 0
         })
         res.redirect("/api/users")
+       }
+
+       if (resultValidation) {
+        res.json({
+            Problem: "Error en la introduccion de datos",
+            fullList: "http://localhost:3001/api/users",
+            resultValidation
+        })
+       }
     },
     delete: async (req, res) => {
 

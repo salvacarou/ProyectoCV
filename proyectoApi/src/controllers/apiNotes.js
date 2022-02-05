@@ -1,5 +1,6 @@
 const { all } = require("express/lib/application");
 const { Notes } = require("../database/models");
+const { validationResult } = require("express-validator");
 
 
 const controller = {
@@ -14,16 +15,6 @@ const controller = {
             }    
         })
 
-        // const mostFavs = allNotes.sort(function (a, b) {
-        //     if (a.favCount > b.favCount) {
-        //         return -1;
-        //     }
-        //     if (a.favCount < b.favCount) {
-        //         return 1
-        //     }
-        //     return 0
-        // })
-
         const mostFavs = notesList.sort(function (a, b) {
             if (a.userfaved.length > b.userfaved.length) {
                 return -1;
@@ -33,7 +24,6 @@ const controller = {
             }
             return 0
         })
-        console.log(mostFavs[0].name)
 
         res.json({
             meta: {
@@ -55,7 +45,6 @@ const controller = {
     },
     deletedNotes: async (req, res) => {
         const notesList = await Notes.findAll({where : {deleted : true}})
-        console.log(notesList)
         const allNotes = notesList.map((notes) => {
             return {
                 id: notes.id,
@@ -100,7 +89,7 @@ const controller = {
             })
         } else {
             res.json({
-                Problema: "No se encontro la nota",
+                Problem: "No se encontro la nota",
                 meta : {
                     status: 404,
                     url: "http://localhost:3001/api/notes/" + req.params.id,
@@ -111,21 +100,28 @@ const controller = {
         }
     },
     create: async (req, res) => {
-        console.log(req.body)
-
-        const biggestId = await Notes.max("id")
-        const newNote = await Notes.create({
+        const resultValidation =  validationResult(req)
+        
+        if (resultValidation.errors.length == 0) {
+            console.log(req.body)
+         const biggestId = await Notes.max("id")
+        await Notes.create({
             id : biggestId + 1,
-            name : req.body.name ? req.body.name : "incompleto",
-            image: req.body.image ? req.body.image : "incompleto",
-            text : req.body.text ? req.body.text : "incompleto",
-            categoryId : Number(req.body.category ? req.body.category : 11),
-            userId : Number(req.body.userId ? req.body.userId : 1),
+            name : req.body.name,
+            image: req.body.image,
+            text : req.body.text,
+            categoryId : Number(req.body.categoryId),
+            userId : Number(req.body.userId),
             deleted : 0
         })
+        res.redirect("/api/notes")   
+        }
 
-        console.log("llegoooooooooooooooo")
-        res.redirect("/api/notes")
+        if (resultValidation) {
+            res.json({
+            resultValidation
+        })
+        }
     },
     delete: async (req, res) => {
 
@@ -144,8 +140,6 @@ const controller = {
     },
     edit: async (req, res) => {
         const noteSearch = await Notes.findOne({ where: { id : req.params.id }})
-        const biggestId = await Notes.max("id")
-        console.log(req.body)
         
     if (noteSearch) {
         const noteEdited = await Notes.update({
