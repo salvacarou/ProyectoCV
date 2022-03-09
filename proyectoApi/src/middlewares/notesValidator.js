@@ -26,16 +26,16 @@ const validations = [
         .isAlphanumeric()
         .withMessage('Solo se permite contenido alfanumerico')
         .bail(),
-    body('userId')
-        .trim()
-        .notEmpty()
-        .withMessage("Debes completar el campo")
-        .bail()
-        .isLength({min:1, max:5})
-        .withMessage("Debe tener de 4 a 20 caracteres")
-        .isAlphanumeric()
-        .withMessage('Solo se permite contenido alfanumerico')
-        .bail()
+    // body('userId')
+    //     .trim()
+    //     .notEmpty()
+    //     .withMessage("Debes completar el campo")
+    //     .bail()
+    //     .isLength({min:1, max:5})
+    //     .withMessage("Debe tener de 4 a 20 caracteres")
+    //     .isAlphanumeric()
+    //     .withMessage('Solo se permite contenido alfanumerico')
+    //     .bail()
 ]
 
 module.exports = validations;

@@ -1,6 +1,9 @@
 const { all } = require("express/lib/application");
 const { Notes } = require("../database/models");
+const { Users } = require("../database/models");
+const { Note_user_fav } = require("../database/models");
 const { validationResult } = require("express-validator");
+const req = require("express/lib/request");
 
 
 const controller = {
@@ -111,7 +114,7 @@ const controller = {
             image: req.body.image,
             text : req.body.text,
             categoryId : Number(req.body.categoryId),
-            userId : Number(req.body.userId),
+            userId : Number(req.session.userLogged.id),
             deleted : 0
         })
         res.redirect("/api/notes")   
@@ -125,18 +128,17 @@ const controller = {
     },
     delete: async (req, res) => {
 
-        const noteSearch = await Notes.findOne({ where: { id : req.params.id }})
+        const noteSearch = await Notes.findOne({ where: { id: req.params.id, deleted: false }})
         if (noteSearch) {
             await Notes.update({
                 deleted: 1
             }, { where : {id : req.params.id} })
+            res.redirect("/api/profile")
         } else {
             res.json({
                 Problema : "No se encontro la nota"
             })
         }
-
-        res.redirect("/api/notes")
     },
     edit: async (req, res) => {
         const noteSearch = await Notes.findOne({ where: { id : req.params.id }})
@@ -160,6 +162,45 @@ const controller = {
 
 
         res.redirect("/api/notes/" + req.params.id )
+    },
+    likes: async (req, res) => {
+        const biggestId = await Note_user_fav.max("id")
+        const noteLikes = await Notes.findOne({where: {id: req.body.notesId, deleted: false}})
+        console.log(noteLikes)
+        
+        if (noteLikes) {
+            await Note_user_fav.create({
+            id: biggestId + 1,
+            notesId: req.body.notesId,
+            userId: req.session.userLogged.id
+        })
+
+        res.redirect("/api/profile")
+        }
+
+        if (!noteLikes) {
+            res.json({
+                message: "Nota no encontrada"
+            })
+        }
+        
+    },
+    deleteLikes: async (req, res) => {
+        const user = await Users.findOne({where: {id: req.session.userLogged.id}, include:["notes", "favnote"]})
+        const favNote = await Note_user_fav.findOne({where: {userId: user.id , notesId: req.body.notesId}})
+        if (favNote) {
+            const note = await Notes.findOne({where: {id: favNote.notesId, deleted: false}})
+            if (favNote && note) {
+                await Note_user_fav.destroy({
+                    where: {
+                        id: favNote.id
+                    }
+                })
+                res.redirect("/api/profile")
+            }
+        } else {
+            res.json({message: "Este like no existe"})
+            }
     }
 }
 

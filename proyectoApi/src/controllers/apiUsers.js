@@ -7,6 +7,7 @@ const { validationResult } = require("express-validator");
 
 const controller = {
     list: async (req, res) => {
+        console.log(req.session.userLogged)
         const usersList = await Users.findAll({where: {deleted : false}});
         
         const users = usersList.map((userr) => { 
@@ -194,6 +195,63 @@ const controller = {
         })
     }
         res.redirect("/api/users/" + req.params.id )
+    },
+    login: async (req, res) => {
+
+        if (req.session.userLogged) {
+            res.json({
+                message: "Hay un usuario logueado",
+                user: req.session.userLogged
+            })
+        }
+
+        const respuesta = {
+            status: 401,
+            oldData: req.body,
+            message: "Credenciales no validas"}
+
+        const resultValidation = validationResult(req)
+        if (resultValidation.errors.length > 0) {
+            res.json(respuesta) 
+        } if (resultValidation.errors.length == 0) {
+            const userSearch = await Users.findOne({ where: { email : req.body.email }})
+            const comparePassword = await bcryptjs.compareSync(req.body.password, userSearch.password)
+                if (!comparePassword) {
+                    res.json(respuesta)
+                }
+                if (comparePassword) {
+                    const userLog = {
+                        id: userSearch.id,
+                        fullName: userSearch.fullName,
+                        username: userSearch.username,
+                        email: userSearch.email,
+                        birthdate: userSearch.birthdate,
+                        image: userSearch.image
+                    }
+                    req.session.userLogged = userLog
+                    res.redirect("/api/profile")
+                }
+        }
+
+    },
+    logout: (req, res) => {
+        if (req.session.userLogged) {
+            req.session.destroy();
+            res.json({"data": "Logged out"})
+        } 
+
+        res.json({sesion: "No hay ninguna sesion abierta"})
+        
+    },
+    profile: (req, res) => {
+        if (req.session.userLogged) {
+            res.redirect("/api/users/" + req.session.userLogged.id)
+        }
+        if (!req.session.userLogged) {
+            res.json({
+                message: "No hay ningun usuario logueado"
+            })
+        }
     }
 }
 

@@ -1,13 +1,20 @@
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
+const cookies = require("cookie-parser")
+
+const userLoggedMid = require("./middlewares/loggedUser")
 
 const app = express();
+
 app.use(session({
     secret: "Mensaje Secreto",
     resave: false,
-	saveUninitialized: false,
+	saveUninitialized: false
 }));
+
+app.use(userLoggedMid)
+// app.use(cookies)
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
